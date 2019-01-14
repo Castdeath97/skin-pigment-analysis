@@ -9,6 +9,7 @@ BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
 PROFILE = default
 PROJECT_NAME = csc8635_project
 PYTHON_INTERPRETER = python3
+PYTEST_DIR = 'src/tests'
 
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -29,30 +30,14 @@ requirements: test_environment
 data: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py
 
+## Test using pytest    
+test: requirements
+	pytest $(PYTEST_DIR)
+
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
-
-## Lint using flake8
-lint:
-	flake8 src
-
-## Upload Data to S3
-sync_data_to_s3:
-ifeq (default,$(PROFILE))
-	aws s3 sync data/ s3://$(BUCKET)/data/
-else
-	aws s3 sync data/ s3://$(BUCKET)/data/ --profile $(PROFILE)
-endif
-
-## Download Data from S3
-sync_data_from_s3:
-ifeq (default,$(PROFILE))
-	aws s3 sync s3://$(BUCKET)/data/ data/
-else
-	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
-endif
 
 ## Set up python interpreter environment
 create_environment:
@@ -128,7 +113,7 @@ help:
 		-v col_on="$$(tput setaf 6)" \
 		-v col_off="$$(tput sgr0)" \
 	'{ \
-		printf "%s%*s%s ", col_on, -indent, $$1, col_off; \
+		printf " %s%*s%s ", col_on, -indent, $$1, col_off; \
 		n = split($$2, words, " "); \
 		line_length = ncol - indent; \
 		for (i = 1; i <= n; i++) { \
