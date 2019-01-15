@@ -9,15 +9,20 @@ This Documentation documents the code that isn't used in jupyter notebook for th
 
 Author: Ammar Hasan 150454388 January 2018
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
 
-   getting-started
-   commands
+Making the Dataset (src.data.make_dataset)
+============================================
 
+.. automodule:: src.data.make_dataset
+   :members:
+   
+Testing Dataset Making (src.tests.test_make_dataset)
+========================================================
 
+.. automodule:: src.tests.test_make_dataset
+   :members:
 
 Indices and tables
 ==================
