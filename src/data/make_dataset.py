@@ -51,7 +51,7 @@ RGB_28_28_CSV_FILE = BASE_RAW_DATA_DIR + '/hmnist_28_28_RGB.csv'
 str: hmnist_28_28_L.csv 28 X 28 RGB values file location 
 """
 
-PROCESSED_CSV_FILE = BASE_RAW_DATA_DIR + '/processed.csv'
+PROCESSED_CSV_FILE = BASE_PROCESSED_DATA_DIR + '/processed.csv'
 """
 str: HAM1000_metadata.csv metadata file location 
 """
