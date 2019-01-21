@@ -9,6 +9,7 @@ Code
 ------
 
 """
+
 # -*- coding: utf-8 -*-
 import logging
 from pathlib import Path
@@ -31,24 +32,14 @@ META_CSV_FILE = BASE_RAW_DATA_DIR + '/HAM10000_metadata.csv'
 str: HAM1000_metadata.csv metadata file location 
 """
 
-L_8_8_CSV_FILE = BASE_RAW_DATA_DIR + '/hmnist_8_8_L.csv'
-"""
-str: hmnist_8_8_L.csv 8 X 8 luminance values file location 
-"""
-
 L_28_28_CSV_FILE = BASE_RAW_DATA_DIR + '/hmnist_28_28_L.csv'
 """
 str: hmnist_28_28_L.csv 28 X 28 luminance values file location 
 """
 
-RGB_8_8_CSV_FILE = BASE_RAW_DATA_DIR + '/hmnist_8_8_RGB.csv'
-"""
-str: hmnist_8_8_L.csv 8 X 8 RGB values file location 
-"""
-
 RGB_28_28_CSV_FILE = BASE_RAW_DATA_DIR + '/hmnist_28_28_RGB.csv'
 """
-str: hmnist_28_28_L.csv 28 X 28 RGB values file location 
+str: hmnist_28_28_RGB.csv 28 X 28 RGB values file location 
 """
 
 PROCESSED_CSV_FILE = BASE_PROCESSED_DATA_DIR + '/processed.csv'
@@ -56,8 +47,22 @@ PROCESSED_CSV_FILE = BASE_PROCESSED_DATA_DIR + '/processed.csv'
 str: HAM1000_metadata.csv metadata file location 
 """
 
+lesions_dict = {
+    'nv': 'Melanocytic nevi',
+    'mel': 'dermatofibroma',
+    'bkl': 'Benign keratosis-like lesions ',
+    'bcc': 'Basal cell carcinoma',
+    'akiec': 'Actinic keratoses',
+    'vasc': 'Vascular lesions',
+    'df': 'Dermatofibroma'
+}
+"""
+dict: a dictionary used to store the conditions full names
+"""
+
 def clean_meta(meta_df):
-    """ Cleans metadata dataframe by filling age NAs with the mean
+    """ Cleans metadata dataframe by filling age NAs (mean) and adding 
+    lesion_type indexes and text
 
     Parameters
     ----------
@@ -71,44 +76,12 @@ def clean_meta(meta_df):
 
     """
     meta_df.age = meta_df.age.fillna(meta_df.age.mean())
+    meta_df['lesion_type'] = meta_df['dx'].map(lesions_dict.get) 
+    meta_df['lesion_type_idx'] = pd.Categorical(meta_df['lesion_type']).codes
+    
     return(meta_df)
-    
-def clean_luminance(l_df):
-    """ Cleans a luminance dataframe by removing uneeded label field
-
-    Parameters
-    ----------
-    l_df
-        luminance dataframe (8X8 or 28X28) to clean
-
-    Returns
-    -------
-    pandas.core.frame.DataFrame
-        Cleaned luminance dataframe
-
-    """
-    l_df.drop(columns='label', inplace=True)
-    return(l_df)
-    
-def clean_rgb(rgb_df):
-    """ Cleans a rgb dataframe by removing uneeded label field
-
-    Parameters
-    ----------
-    rgb_df
-        RGB dataframe (8X8 or 28X28) to clean
-
-    Returns
-    -------
-    pandas.core.frame.DataFrame
-        Cleaned rgb dataframe
-
-    """
-    rgb_df.drop(columns='label', inplace=True)
-    return(rgb_df)
        
-def merge_pixel_values(meta_df, l_8_8_df, l_28_28_df,
-                       rgb_8_8_df, rgb_28_28_df):
+def merge_pixel_values(meta_df, l_28_28_df, rgb_28_28_df):
     """ Merges metadata dataframe with RGB and luminance pixel values dfs
 
     Parameters
@@ -116,14 +89,8 @@ def merge_pixel_values(meta_df, l_8_8_df, l_28_28_df,
     meta_df
         metadata dataframe
     
-    l_8_8_df
-        8 X 8 luminance dataframe
-    
     l_28_28_df
         28 X 28 luminance dataframe
-        
-    rgb_8_8_df
-        8 X 8 RGB dataframe
 
     rgb_28_28_df
         28 X 28 RGB dataframe
@@ -137,16 +104,18 @@ def merge_pixel_values(meta_df, l_8_8_df, l_28_28_df,
     
     # Add suffix to names to ensure they are unique after merge
     
-    l_8_8_df.columns = [str(col) + '_l_8_8' for col in l_8_8_df.columns]
     l_28_28_df.columns = [str(col) + '_l_28_28'
                             for col in l_28_28_df.columns]
-    rgb_8_8_df.columns = [str(col) + '_rgb_8_8' for col in rgb_8_8_df.columns]
     rgb_28_28_df.columns = [str(col) + '_rgb_28_28'
                             for col in rgb_28_28_df.columns]
-
-    frames = [meta_df, l_8_8_df, l_28_28_df, rgb_8_8_df, rgb_28_28_df]
-    merged_df = pd.concat(frames, sort=False, axis=1)
-    return(merged_df)
+    
+    # Merge first with luminance then rgb using append with transpose
+    # Transpose makes sure axis direction is correct
+    
+    merged_df_l = (l_28_28_df.T.append(meta_df.T, sort=False)).T
+    merged_df_l_rgb = (rgb_28_28_df.T.append(merged_df_l.T, sort=False)).T
+    
+    return(merged_df_l_rgb)
 
 def add_image_paths(meta_df):
     """ Adds image path to image meta data
@@ -186,30 +155,21 @@ def main():
     # Read datasets in
     
     meta_df = pd.read_csv(META_CSV_FILE)
-    l_8_8_df = pd.read_csv(L_8_8_CSV_FILE)
     l_28_28_df = pd.read_csv(L_28_28_CSV_FILE)
-    rgb_8_8_df = pd.read_csv(RGB_8_8_CSV_FILE)
     rgb_28_28_df = pd.read_csv(RGB_28_28_CSV_FILE)
 
     # clean meta dataset
     
     meta_df = clean_meta(meta_df)
     
-    # clean pixel datasets
-    
-    l_8_8_df = clean_luminance(l_8_8_df)
-    l_28_28_df = clean_luminance(l_28_28_df)
-    rgb_8_8_df = clean_rgb(rgb_8_8_df)
-    rgb_28_28_df = clean_rgb(rgb_28_28_df)
-	
 	# Add image paths
     
-    meta_df = add_image_paths(meta_df)
+    meta_df = add_image_paths(meta_df) 
     
     # Merge datasets
-    merged_df = merge_pixel_values(meta_df, l_8_8_df, l_28_28_df, rgb_8_8_df,
-                                   rgb_28_28_df)
-    merged_df.shape
+        
+    merged_df = merge_pixel_values(meta_df, l_28_28_df, rgb_28_28_df)
+            
     # save merged dataset
     
     merged_df.to_csv(PROCESSED_CSV_FILE)
