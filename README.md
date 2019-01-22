@@ -1,13 +1,30 @@
 csc8635_project
 ==============================
 
-Development and Analysis of Machine Learning Models for the Diagnosis of Pigmented Skin Lesions 
+Development and Analysis of Machine Learning Models for the Diagnosis of Pigmented Skin Lesions.
+
+Usage and prerequisites
+-----------------------
+* Needs a linux OS installation with python3 with pip
+* install texlive-xetex with OS package manager (apt-get) 
+* pip install virtualenv
+* pip install virtualenvwrapper
+* Work with a virtual environment to run analysis:
+	- Create a virtual environment using 'make create_environment'
+	- To run virtualenvwrapper: 'source /usr/local/bin/virtualenvwrapper.sh'
+    - 'workon' the created virtual environment 
+	- 'deactivate' to leave environment when done
+
+* Use make for required actions
+	- 'make create_environment' as stated before this creates the virtualenv
+	- 'make data' creates the final dataset saved in data/processed from data/raw 
+	- 'make reports' creates final pdfs in /reports from /notebook jupyter notebooks
 
 Project Organization
 ------------
 
     ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
+    ├── Makefile           <- Makefile with commands like `make data`
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
     │   ├── external       <- Data from third party sources.
@@ -16,17 +33,12 @@ Project Organization
     │   └── raw            <- The original, immutable data dump.
     │
     ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
+    │    │
     ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
     │                         the creator's initials, and a short `-` delimited description, e.g.
     │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
+    │    
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
     │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
@@ -36,18 +48,10 @@ Project Organization
     │   ├── __init__.py    <- Makes src a Python module
     │   │
     │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
+    │   │   └── make_dataset.py  <- create final dataset
     │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
+    │   └── test  <- Contains Scripts used for tests (pytest)
+	│       └── test_make_dataset.py  <- tests final dataset creation
     │
     └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
 
