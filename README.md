@@ -3,7 +3,7 @@ csc8635_project
 
 Development and Analysis of Machine Learning Models for the Diagnosis of Pigmented Skin Lesions.
 
-Usage and prerequisites
+Usage and Prerequisites
 -----------------------
 * Needs a linux OS installation with python3 with pip
 * install texlive-xetex with OS package manager (apt-get) 
