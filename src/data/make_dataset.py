@@ -61,8 +61,8 @@ dict: a dictionary used to store the conditions full names
 """
 
 def clean_meta(meta_df):
-    """ Cleans metadata dataframe by filling age NAs (mean) and adding 
-    lesion_type indexes and text
+    """ Cleans metadata dataframe by filling age NAs (mean) and adding
+    lesion text and ids
 
     Parameters
     ----------
@@ -74,10 +74,19 @@ def clean_meta(meta_df):
     pandas.core.frame.DataFrame
         Cleaned meta dataframe
 
-    """
-    meta_df.age = meta_df.age.fillna(meta_df.age.mean())
-    meta_df['lesion_type'] = meta_df['dx'].map(lesions_dict.get) 
+    """    
+    # adding new lesion fields
+    
+    meta_df['lesion_type'] = meta_df['dx'].map(lesions_dict.get)
     meta_df['lesion_type_idx'] = pd.Categorical(meta_df['lesion_type']).codes
+    
+    # Drop redudant and unecessary fields
+    
+    meta_df.drop(['dx', 'lesion_id', 'image_id'], axis = 1, inplace = True)
+    
+    # Replacing/filling NAs
+    
+    meta_df.age = meta_df.age.fillna(meta_df.age.mean())
     
     return(meta_df)
        
@@ -144,6 +153,33 @@ def add_image_paths(meta_df):
     
     return(meta_df)
     
+def clean_luminance(l_df):
+    """ Cleans a luminance dataframe by removing uneeded label field
+    Parameters
+    ----------
+    l_df
+        luminance dataframe (8X8 or 28X28) to clean
+    Returns
+    -------
+    pandas.core.frame.DataFrame
+        Cleaned luminance dataframe
+    """
+    l_df.drop(columns='label', inplace=True)
+    return(l_df)
+    
+def clean_rgb(rgb_df):
+    """ Cleans a rgb dataframe by removing uneeded label field
+    Parameters
+    ----------
+    rgb_df
+        RGB dataframe (8X8 or 28X28) to clean
+    Returns
+    -------
+    pandas.core.frame.DataFrame
+        Cleaned rgb dataframe
+    """
+    rgb_df.drop(columns='label', inplace=True)
+    return(rgb_df)
 
 def main():
     """ Runs data processing scripts to turn raw data from (../raw) into
@@ -161,6 +197,11 @@ def main():
     # clean meta dataset
     
     meta_df = clean_meta(meta_df)
+    
+    # clean rgb and luminance datasets
+    
+    l_28_28_df = clean_luminance(l_28_28_df)
+    rgb_28_28_df = clean_rgb(rgb_28_28_df)
     
 	# Add image paths
     

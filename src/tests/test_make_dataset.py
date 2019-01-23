@@ -40,6 +40,28 @@ RGB_28_28_CSV_FILE = BASE_RAW_DATA_DIR + '/hmnist_28_28_RGB.csv'
 str: hmnist_28_28_L.csv 28 X 28 RGB values file location 
 """
 
+lesions_list = ['Melanocytic nevi', 'dermatofibroma',
+                'Benign keratosis-like lesions ', 'Basal cell carcinoma',
+                'Actinic keratoses', 'Vascular lesions', 'Dermatofibroma']
+"""
+list: a list used to store the conditions full names
+"""
+
+RGB_28_28_DF = pd.read_csv(RGB_28_28_CSV_FILE)
+"""
+pandas.core.frame.DataFrame: 28 X 28 RGB dataframe
+"""
+
+L_28_28_DF = pd.read_csv(L_28_28_CSV_FILE)
+"""
+pandas.core.frame.DataFrame: 28 X 28 Luminance dataframe
+"""
+
+META_DF = pd.read_csv(META_CSV_FILE)
+"""
+pandas.core.frame.DataFrame: metadata dataframe
+"""
+
 @pytest.fixture
 def global_meta():
     """Fixture used to pass metadata dataset
@@ -49,7 +71,7 @@ def global_meta():
     pandas.core.frame.DataFrame
         metadata dataframe
     """
-    return(pd.read_csv(META_CSV_FILE))
+    return(META_DF.copy())
 
 @pytest.fixture
 def global_l_28_28():
@@ -60,7 +82,7 @@ def global_l_28_28():
     pandas.core.frame.DataFrame
         28 X 28 luminance dataframe
     """
-    return(pd.read_csv(L_28_28_CSV_FILE))
+    return(L_28_28_DF.copy())
     
 @pytest.fixture
 def global_rgb_28_28():
@@ -71,20 +93,75 @@ def global_rgb_28_28():
     pandas.core.frame.DataFrame
         28 X 28 RGB dataframe
     """
-    return(pd.read_csv(RGB_28_28_CSV_FILE))
+    return(RGB_28_28_DF.copy())
+    
+@pytest.fixture
+def global_lesions_list():
+    """Fixture used return list of skin lesions
+    
+    Returns
+    -------
+    list
+        skin lesion textual conditions
+    """
+    return(lesions_list)
+    
+@pytest.fixture
+def global_merge_col_count():
+    """Fixture used return expected columns count after merge
+    
+    Returns
+    -------
+    int
+        column count (expected)
+    """
+    return(3145)
         
-@pytest.mark.usefixtures('global_meta')
+@pytest.mark.usefixtures('global_meta', 'global_lesions_list')
 class TestMetaCleaning(object):
      """ Tests metadata dataframe cleaning   
 
      """
+     
+     def test_lesion_id_drop(self, global_meta):      
+        """ Tests if lesion_id was dropped
+
+        """
+        meta_df = md.clean_meta(global_meta)
+        assert not(meta_df.columns.isin(['lesion_id']).any())
+    
+     def test_image_id_drop(self, global_meta):      
+        """ Tests if image_id was dropped
+
+        """
+        meta_df = md.clean_meta(global_meta)
+        assert not(meta_df.columns.isin(['image_id']).any())
      
      def test_age_na_fix(self, global_meta):      
         """ Tests if age nas were replaced with average
 
         """
         meta_df = md.clean_meta(global_meta)
-        assert(meta_df.age.isnull().values.any())
+        assert not (meta_df.age.isnull().values.any())
+        
+     def test_dx_num(self, global_meta):
+        """ Tests skin lesion diagnosis replacement with
+        numerical category field
+        
+        """
+        meta_df = md.clean_meta(global_meta)
+        assert(meta_df['lesion_type_idx'].between(0,6).any())
+        
+     def test_lesion_text(self, global_meta, global_lesions_list):
+        """ Tests skin lesion text addition
+        
+        """
+        meta_df = md.clean_meta(global_meta)
+        
+        # Check if lesion types are in the list
+        
+        assert(meta_df['lesion_type'].isin(global_lesions_list).all())
+
         
 @pytest.mark.usefixtures('global_meta')
 class TestMetaImagePaths(object):
@@ -100,7 +177,8 @@ class TestMetaImagePaths(object):
         assert(meta_df.image_path.apply(lambda x : os.path.exists(x)).all())
         
         
-@pytest.mark.usefixtures('global_l_28_28', 'global_rgb_28_28', 'global_meta')
+@pytest.mark.usefixtures('global_l_28_28', 'global_rgb_28_28', 'global_meta', 
+                         'global_merge_col_count')
 class TestRGBLMetaMerge(object):
      """ Tests RGB and luminance dataframe merge with metadata   
 
@@ -110,18 +188,19 @@ class TestRGBLMetaMerge(object):
         """ Tests if merge has any nulls
 
         """
-        merged_df = md.merge_pixel_values(global_meta, global_l_28_28, 
-                                          global_rgb_28_28):
+        merged_df = md.merge_pixel_values(self, global_meta, global_l_28_28, 
+                                          global_rgb_28_28)
         assert((merged_df.isnull().values.any()))
         
-     def test_l_rgb_meta_merge_fields(self, global_meta, global_l_28_28, 
-                                          global_rgb_28_28):      
+     def test_l_rgb_meta_merge_fields(self, global_meta, global_l_28_28,
+                                      global_rgb_28_28, global_merge_col_count):
         """ Tests if merge added all required fields
 
         """
-        merged_df = md.merge_pixel_values(global_meta, global_l_28_28, 
-                                          global_rgb_28_28): 
-        assert(len(merged_df.columns) == 3403) # not cleaned so labels count
+        merged_df = md.merge_pixel_values(self, global_meta, global_l_28_28, 
+                                          global_rgb_28_28)
+        # not cleaned so labels count
+        assert(len(merged_df.columns) == global_merge_col_count) 
         
         
 @pytest.mark.usefixtures('global_l_28_28', 'global_rgb_28_28')
