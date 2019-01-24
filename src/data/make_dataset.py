@@ -49,7 +49,7 @@ str: HAM1000_metadata.csv metadata file location
 
 lesions_dict = {
     'nv': 'Melanocytic nevi',
-    'mel': 'dermatofibroma',
+    'mel': 'Melanoma',
     'bkl': 'Benign keratosis-like lesions ',
     'bcc': 'Basal cell carcinoma',
     'akiec': 'Actinic keratoses',
@@ -193,6 +193,10 @@ def main():
     meta_df = pd.read_csv(META_CSV_FILE)
     l_28_28_df = pd.read_csv(L_28_28_CSV_FILE)
     rgb_28_28_df = pd.read_csv(RGB_28_28_CSV_FILE)
+    
+    # Add image paths
+    
+    meta_df = add_image_paths(meta_df) 
 
     # clean meta dataset
     
@@ -202,10 +206,6 @@ def main():
     
     l_28_28_df = clean_luminance(l_28_28_df)
     rgb_28_28_df = clean_rgb(rgb_28_28_df)
-    
-	# Add image paths
-    
-    meta_df = add_image_paths(meta_df) 
     
     # Merge datasets
         
