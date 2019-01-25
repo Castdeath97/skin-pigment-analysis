@@ -161,21 +161,6 @@ class TestMetaCleaning(object):
         # Check if lesion types are in the list
         
         assert(meta_df['lesion_type'].isin(global_lesions_list).all())
-
-        
-@pytest.mark.usefixtures('global_meta')
-class TestMetaImagePaths(object):
-     """ Tests metadata dataframe image paths   
-
-     """
-     
-     def test_path_exists(self, global_meta):      
-        """ Tests if the image path exists
-
-        """
-        meta_df = md.add_image_paths(global_meta)
-        assert(meta_df.image_path.apply(lambda x : os.path.exists(x)).all())
-        
         
 @pytest.mark.usefixtures('global_l_28_28', 'global_rgb_28_28', 'global_meta', 
                          'global_merge_col_count')

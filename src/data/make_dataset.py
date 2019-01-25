@@ -14,8 +14,6 @@ Code
 import logging
 from pathlib import Path
 import pandas as pd
-import os
-from glob import glob
 
 BASE_RAW_DATA_DIR = 'data/raw'
 """
@@ -125,33 +123,6 @@ def merge_pixel_values(meta_df, l_28_28_df, rgb_28_28_df):
     merged_df_l_rgb = (rgb_28_28_df.T.append(merged_df_l.T, sort=False)).T
     
     return(merged_df_l_rgb)
-
-def add_image_paths(meta_df):
-    """ Adds image path to image meta data
-
-    Parameters
-    ----------
-    meta_df
-        meta_df to add path to
-
-    Returns
-    -------
-    pandas.core.frame.DataFrame
-        meta dataframe updated with paths
-
-    """
-    
-    # Find image paths
-    
-    image_paths = {os.path.splitext(os.path.basename(x))[0]: x
-                         for x in glob(
-                                 os.path.join(BASE_RAW_DATA_DIR, '*', '*.jpg'))}
-
-    # link image paths to ids using map
-    
-    meta_df['image_path'] = meta_df.image_id.map(image_paths.get)
-    
-    return(meta_df)
     
 def clean_luminance(l_df):
     """ Cleans a luminance dataframe by removing uneeded label field
@@ -194,10 +165,6 @@ def main():
     l_28_28_df = pd.read_csv(L_28_28_CSV_FILE)
     rgb_28_28_df = pd.read_csv(RGB_28_28_CSV_FILE)
     
-    # Add image paths
-    
-    meta_df = add_image_paths(meta_df) 
-
     # clean meta dataset
     
     meta_df = clean_meta(meta_df)
