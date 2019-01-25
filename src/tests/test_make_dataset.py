@@ -13,7 +13,6 @@ Code
 import pandas as pd
 from src.data import make_dataset as md
 import pytest
-import os
 
 BASE_RAW_DATA_DIR = 'data/raw'
 """
@@ -47,20 +46,7 @@ lesions_list = ['Melanocytic nevi', 'dermatofibroma',
 list: a list used to store the conditions full names
 """
 
-RGB_28_28_DF = pd.read_csv(RGB_28_28_CSV_FILE)
-"""
-pandas.core.frame.DataFrame: 28 X 28 RGB dataframe
-"""
 
-L_28_28_DF = pd.read_csv(L_28_28_CSV_FILE)
-"""
-pandas.core.frame.DataFrame: 28 X 28 Luminance dataframe
-"""
-
-META_DF = pd.read_csv(META_CSV_FILE)
-"""
-pandas.core.frame.DataFrame: metadata dataframe
-"""
 
 @pytest.fixture
 def global_meta():
@@ -71,6 +57,8 @@ def global_meta():
     pandas.core.frame.DataFrame
         metadata dataframe
     """
+    
+    META_DF = pd.read_csv(META_CSV_FILE)
     return(META_DF.copy())
 
 @pytest.fixture
@@ -82,6 +70,8 @@ def global_l_28_28():
     pandas.core.frame.DataFrame
         28 X 28 luminance dataframe
     """
+
+    L_28_28_DF = pd.read_csv(L_28_28_CSV_FILE)
     return(L_28_28_DF.copy())
     
 @pytest.fixture
@@ -93,6 +83,7 @@ def global_rgb_28_28():
     pandas.core.frame.DataFrame
         28 X 28 RGB dataframe
     """
+    RGB_28_28_DF = pd.read_csv(RGB_28_28_CSV_FILE)
     return(RGB_28_28_DF.copy())
     
 @pytest.fixture
@@ -160,7 +151,7 @@ class TestMetaCleaning(object):
         
         # Check if lesion types are in the list
         
-        assert(meta_df['lesion_type'].isin(global_lesions_list).all())
+        assert(meta_df['lesion_type'].isin(global_lesions_list).any())
         
 @pytest.mark.usefixtures('global_l_28_28', 'global_rgb_28_28', 'global_meta', 
                          'global_merge_col_count')
@@ -173,7 +164,7 @@ class TestRGBLMetaMerge(object):
         """ Tests if merge has any nulls
 
         """
-        merged_df = md.merge_pixel_values(self, global_meta, global_l_28_28, 
+        merged_df = md.merge_pixel_values(global_meta, global_l_28_28, 
                                           global_rgb_28_28)
         assert((merged_df.isnull().values.any()))
         
@@ -182,7 +173,7 @@ class TestRGBLMetaMerge(object):
         """ Tests if merge added all required fields
 
         """
-        merged_df = md.merge_pixel_values(self, global_meta, global_l_28_28, 
+        merged_df = md.merge_pixel_values(global_meta, global_l_28_28, 
                                           global_rgb_28_28)
         # not cleaned so labels count
         assert(len(merged_df.columns) == global_merge_col_count) 
