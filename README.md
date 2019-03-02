@@ -17,7 +17,7 @@ Usage and Prerequisites
 * Use make for required dataset creation and tests actions
 	- 'make create_environment' as stated before this creates the virtualenv
 	- 'make data' creates the final dataset saved in data/processed from data/raw 
-	- 'make tests' tests 
+	- 'make test' tests 
 * To update sphinx documentation, change directory to docs and make html
 * To access sphinx documentation, access docs/_build/html and open the index.html
 * To run the exploratory and modelling analysis, use anaconda with jupyter notebook. Make sure to pip install required imports.
