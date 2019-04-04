@@ -1,4 +1,4 @@
-csc8635_project
+skin-pigment-analysis
 ==============================
 
 Development and Analysis of Machine Learning Models for the Diagnosis of Pigmented Skin Lesions.
