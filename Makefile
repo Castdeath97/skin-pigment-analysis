@@ -7,7 +7,7 @@
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
 PROFILE = default
-PROJECT_NAME = csc8635_project
+PROJECT_NAME = skin_project
 PYTHON_INTERPRETER = python3
 PYTEST_DIR = 'src/tests'
 
