@@ -7,6 +7,7 @@ Usage and Prerequisites
 -----------------------
 * Needs a linux OS installation with python3 with pip and a anaconda installation for jupyter notebooks
 * install texlive-xetex with OS package manager (apt-get) (only to create pdf reports)
+* Create data directory with all its folders locally
 * Needs HAM1000 files loaded into user created data/raw directory:
 	- HAM10000_metadata.csv
 	- hmnist_28_28_L.csv
