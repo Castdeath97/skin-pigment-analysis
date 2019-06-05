@@ -1,7 +1,7 @@
 skin-pigment-analysis
 ==============================
 
-Development and Analysis of Machine Learning Models for the Diagnosis of Pigmented Skin Lesions.
+Development and Analysis of Machine Learning Models for the Diagnosis of Pigmented Skin Lesions based on HAM10000 kaggle challenge: https://www.kaggle.com/kmader/skin-cancer-mnist-ham10000 .
 
 Usage and Prerequisites
 -----------------------
